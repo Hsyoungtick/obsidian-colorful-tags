@@ -1,0 +1,10 @@
+*.iml
+.idea
+node_modules
+package-lock.json
+data.json
+.DS_Store
+.devconfig.json
+main.js
+tests
+coverage

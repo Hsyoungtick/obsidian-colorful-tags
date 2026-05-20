@@ -1,0 +1,9 @@
+{
+	"id": "colorful-tags",
+	"name": "Colorful Tags",
+	"version": "1.0.0",
+	"minAppVersion": "1.0.0",
+	"description": "按首字符编码自动分配颜色，同tag同色，支持自定义字典",
+	"author": "Hsyoungtick",
+	"isDesktopOnly": false
+}
