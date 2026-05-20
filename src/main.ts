@@ -35,6 +35,9 @@ export default class ColorfulTagsPlugin extends Plugin {
     this.applyAllColors();
     this.registerObserver();
 
+    await this.loadSettings();
+    this.applyAllColors();
+
     this.popup = new TagPopup({
       getSettings: () => ({
         tagDict: this.settings.tagDict,
