@@ -1,5 +1,5 @@
 import { Plugin } from "obsidian";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import {
   DEFAULT_SETTINGS,
@@ -101,10 +101,26 @@ export default class ColorfulTagsPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     try {
-      await this.saveData(this.settings);
+      const json = this.serializeSettings();
+      const adapter = this.app.vault.adapter as { basePath?: string };
+      if (!adapter.basePath) {
+        await this.saveData(this.settings);
+        return;
+      }
+      const dataPath = join(adapter.basePath, ".obsidian", "plugins", this.manifest.id, "data.json");
+      writeFileSync(dataPath, json, "utf8");
     } catch (err) {
       console.error("Colorful Tags:", t("Save settings failed"), err);
     }
+  }
+
+  private serializeSettings(): string {
+    const { tagDict, ...rest } = this.settings;
+    const tagDictJson = tagDict.length === 0
+      ? "[]"
+      : "[\n\t\t" + tagDict.map(e => JSON.stringify(e)).join(",\n\t\t") + "\n\t]";
+    const restJson = JSON.stringify(rest, null, "\t");
+    return "{\n\t\"tagDict\": " + tagDictJson + ",\n\t" + restJson.slice(2);
   }
 
   createStyleTag(): void {
@@ -252,9 +268,12 @@ export default class ColorfulTagsPlugin extends Plugin {
   }
 
   private onPopupColorChange(tagName: string, colorIndex: number): void {
-    this.settings.tagDict = this.settings.tagDict.filter(
-      (e) => !e.slice(1).includes(tagName)
-    );
+    this.settings.tagDict = this.settings.tagDict
+      .map((e) => {
+        if (e.length <= 1 || !e.slice(1).includes(tagName)) return e;
+        return [e[0], ...e.slice(1).filter((t) => t !== tagName)] as TagDictEntry;
+      })
+      .filter((e) => e.length > 1);
     const existing = this.settings.tagDict.find((e) => e[0] === colorIndex);
     if (existing) {
       existing.push(tagName);

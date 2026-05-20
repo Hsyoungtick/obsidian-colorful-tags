@@ -6,6 +6,8 @@ An Obsidian plugin that makes Tags colorful
 
 English / [中文](README_zh.md)
 
+![preview](preview.png)
+
 </div>
 
 ## 💻 Features
